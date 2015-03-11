@@ -43,26 +43,68 @@ int main(int argc, char *argv[])
 	{
 		error("ERROR on binding");
 	}
-	listen(sockfd, 5);
-	clilen = sizeof(cli_addr);
-	newsockfd = accept(sockfd,
-		(struct sockaddr *) &cli_addr,
-		&clilen);
-	if (newsockfd<0)
+	/* set the max connector */
+	if (listen(sockfd,5) == -1)
 	{
-		error("ERROR on accept");
+		error("ERROR on listen");
 	}
-	bzero(buffer, 256);
-	n = read(newsockfd,buffer,255);
-	if(n<0) error("ERROR reading from socket");
-	printf("Here is the message: %s\n",buffer);
-	n = write(newsockfd,"I got your message",18);
-	if (n<0)
+	//listen(sockfd, 5);
+
+	while(1)
 	{
-		error("ERROR writing to socket");
+		// block server until client app create conn
+		clilen = sizeof(struct sockaddr_in);
+		// if ((newsockfd=accept(sockfd,(struct sockaddr *)(&cli_addr),&clilen))<0)
+		if((newsockfd=accept(sockfd,(struct sockaddr *)(&cli_addr),&clilen))==-1) 
+		{
+			error("ERROR on accept");
+			// exit(1);
+		}
+
+		//打印client地址时出了什么问题？
+		printf("Server get connection from %s\n", inet_ntoa(cli_addr.sin_addr));
+
+		// trans net address to str
+		if ((n = read(newsockfd,buffer,1024))==-1)
+		{
+			error("ERROR on read");
+			// exit(1);
+		}
+		buffer[n]='\0';
+		printf("Here is the message: %s\n", buffer);
+
+		n = write(newsockfd,"I got your message", 18);
+		if (n<0)
+		{
+			error("ERROR writing to socket");
+		}
+
+		close(newsockfd);
 	}
 
-	close(newsockfd);
+
+
+	// clilen = sizeof(cli_addr);
+	// newsockfd = accept(sockfd,
+	// 	(struct sockaddr *) &cli_addr,
+	// 	&clilen);
+	// if (newsockfd<0)
+	// {
+	// 	error("ERROR on accept");
+	// }
+	// bzero(buffer, 256);
+	// n = read(newsockfd,buffer,255);
+	// if(n<0) error("ERROR reading from socket");
+	// printf("Here is the message: %s\n",buffer);
+
+	// n = write(newsockfd,"I got your message",18);
+	// if (n<0)
+	// {
+	// 	error("ERROR writing to socket");
+	// }
+
+	// close(newsockfd);
+
 	close(sockfd);
 
 	return 0;
