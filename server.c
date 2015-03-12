@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <arpa/inet.h>		//为正常输出ip地址添加
 #include <netinet/in.h>
 
 void error(const char *msg)
@@ -62,7 +63,10 @@ int main(int argc, char *argv[])
 		}
 
 		//打印client地址时出了什么问题？
-		printf("Server get connection from %s\n", inet_ntoa(cli_addr.sin_addr));
+
+		printf("%s\n", inet_ntoa(cli_addr.sin_addr));
+
+		fprintf(stderr,"Server get connection from %s\n",inet_ntoa(cli_addr.sin_addr)); 
 
 		// trans net address to str
 		if ((n = read(newsockfd,buffer,1024))==-1)
